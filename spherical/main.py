@@ -3,11 +3,12 @@ import moderngl
 import pkg_resources
 import numpy as np
 from . import geo
+from . import basic_shapes
 
 
 class Camera:
     def __init__(self, tick_ms, angle_per_second=np.pi/4,distance_per_second=np.pi/10):
-        self.qp = geo.QuaternionPair()
+        self.qp = geo.SphericalTransform()
         self.input={
             "roll":0.0,
             "yaw":0.0,
@@ -19,9 +20,9 @@ class Camera:
         self.distance_per_tick = distance_per_second*tick_ms/1000.0
 
     def tick(self):
-        self.qp.yaw(self.input["yaw"]*self.angle_per_tick)
-        self.qp.pitch(self.input["pitch"]*self.angle_per_tick)
-        self.qp.roll(self.input["roll"]*self.angle_per_tick)
+        self.qp.yaw      (self.input["yaw"]  *self.angle_per_tick)
+        self.qp.pitch    (self.input["pitch"]*self.angle_per_tick)
+        self.qp.roll     (self.input["roll"] *self.angle_per_tick)
         self.qp.translate(self.input["ahead"]*self.distance_per_tick)
 
     def update_input(self, input, direction, reset):
@@ -104,7 +105,7 @@ class Game:
         self.load_sphere2()
 
     def load_axes(self):
-        axes = geo.AxisSet()
+        axes = basic_shapes.AxisSet()
         axes.add_all_axes()
 
         circle_pos = self.ctx.buffer(axes.pos_array())
@@ -116,7 +117,7 @@ class Game:
         ])
 
     def load_sphere(self):
-        sphere = geo.Sphere(radius=np.pi, subdivisions=6)
+        sphere = basic_shapes.Octahedron(radius=np.pi, subdivisions=6)
 
         sphere_pos = self.ctx.buffer(sphere.pos_array())
         sphere_col = self.ctx.buffer(sphere.col_array())
@@ -127,7 +128,7 @@ class Game:
         ])        
 
     def load_sphere2(self):
-        sphere = geo.Sphere(radius=np.pi/4, color_odd=geo.Color.Cyan, color_even=geo.Color.Red, subdivisions=1)
+        sphere = basic_shapes.Octahedron(radius=np.pi/4, color_odd=basic_shapes.Color.Cyan, color_even=basic_shapes.Color.Red, subdivisions=1)
 
         sphere_pos = self.ctx.buffer(sphere.pos_array())
         sphere_col = self.ctx.buffer(sphere.col_array())
@@ -160,10 +161,10 @@ class Game:
 
             self.ctx.clear(0.0, 0.0, 0.0, 0.0)
             
-            q1 = self.camera.qp.q1()
-            q2 = self.camera.qp.q2()
-            self.prog["q1"] = (q1.x, q1.y, q1.z, q1.w)
-            self.prog["q2"] = (q2.x, q2.y, q2.z, q2.w)
+            view_s = self.camera.qp.s
+            view_t = self.camera.qp.t
+            self.prog["view_s"] = (view_s.x, view_s.y, view_s.z, view_s.w)
+            self.prog["view_t"] = (view_t.x, view_t.y, view_t.z, view_t.w)
             self.sphere_vao.render(moderngl.TRIANGLES)
             self.sphere2_vao.render(moderngl.TRIANGLES)
             self.axes_vao.render(moderngl.LINES)

@@ -5,8 +5,8 @@ in vec3 a_color;
 
 out vec3 v_color;
 
-uniform vec4 q1;
-uniform vec4 q2;
+uniform vec4 view_s;
+uniform vec4 view_t;
 
 uniform mat4 proj;
 
@@ -38,7 +38,7 @@ void main() {
     // Step 1: translate & rotate
     vec4 pos4_modelview;
 
-    pos4_modelview=qmul(qmul(q1, a_position.yzwx), q2);
+    pos4_modelview=qmul(qmul(view_s, a_position.yzwx), view_t);
 
     spherical_dist = acos(pos4_modelview.w);
 
