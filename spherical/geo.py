@@ -23,6 +23,45 @@ def slerp(start, end, ratio):
     start_inv = 1.0/start
     return start*((start_inv*end)**ratio)
 
+class QuaternionPair:
+    def __init__(self):
+        self.s = unit
+        self.t = unit
+
+    def yaw(self, alpha):
+        self.rotate(alpha, j)
+
+    def pitch(self, alpha):
+        self.rotate(alpha, i)
+
+    def roll(self, alpha):
+        self.rotate(alpha, k)
+
+        
+    def apply_inner(self, a, b):
+        self.s = a * self.s
+        self.t = self.t * b
+
+    def q1(self):
+        return self.s
+
+    def q2(self):
+        return self.t
+
+    def transform(self, point):
+        return self.q1()*point*self.q2()
+    
+
+    def rotate(self, alpha=np.pi/2, axis=k):
+        e = alpha/np.pi
+        self.apply_inner(axis**-e, (-axis)**-e)
+
+
+    def translate(self, alpha=np.pi/2, axis=k):
+        e = alpha/np.pi
+        self.apply_inner(axis**-e, axis**-e)
+
+
 def circle(subdivisions=128, base1=i, base2=j):
     angles = np.linspace(0, 2*np.pi, subdivisions+1)
 
@@ -63,45 +102,6 @@ class AxisSet:
 
     def pos_array(self):
         return np.array(np.concatenate(self.pos_array_list), dtype='f4')
-
-
-class QuaternionPair:
-    def __init__(self):
-        self.s = unit
-        self.t = unit
-
-    def yaw(self, alpha):
-        self.rotate(alpha, j)
-
-    def pitch(self, alpha):
-        self.rotate(alpha, i)
-
-    def roll(self, alpha):
-        self.rotate(alpha, k)
-
-        
-    def apply_inner(self, a, b):
-        self.s = self.s * a
-        self.t = b * self.t
-
-    def q1(self):
-        return 1/self.s
-
-    def q2(self):
-        return 1/self.t
-
-    def transform(self, point):
-        return self.q1()*point*self.q2()
-    
-
-    def rotate(self, alpha=np.pi/2, axis=k):
-        e = alpha/np.pi
-        self.apply_inner(axis**e, (-axis)**e)
-
-
-    def translate(self, alpha=np.pi/2, axis=k):
-        e = alpha/np.pi
-        self.apply_inner(axis**e, axis**e)
 
 
 
