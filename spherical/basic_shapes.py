@@ -3,7 +3,16 @@ import numpy as np
 import quaternion
 
 def quaternions_to_vertices(quaternions):
-    return np.array(quaternion.as_float_array(quaternions), dtype="f4")
+    reorder_to_xyzw=np.array([
+        [0, 0, 0, 1],
+        [1, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, 1, 0],
+    ])
+    array_wxyz = quaternion.as_float_array(quaternions)
+    return np.array(
+        np.matmul(array_wxyz, reorder_to_xyzw),
+        dtype="f4")
 
 class Color:
     Blue = np.array([0.0,0.0,1.0]) # blue = 1i
@@ -80,21 +89,14 @@ class Octahedron:
         e = self.radius/np.pi
         c =self.center
 
-        right  = c.transform((+geo.i)**e)
-        left   = c.transform((-geo.i)**e)
-        top    = c.transform((+geo.j)**e)
-        bottom = c.transform((-geo.j)**e)
-        front  = c.transform((+geo.k)**e)
-        back   = c.transform((-geo.k)**e)
-        
-        self.add_tiled_triangle(right, top, front, False, self.subdivisions)
-        self.add_tiled_triangle(right, top, back, True, self.subdivisions)
-        self.add_tiled_triangle(right, bottom, front, True, self.subdivisions)
-        self.add_tiled_triangle(left, top, front, True, self.subdivisions)
-        self.add_tiled_triangle(right, bottom, back, False, self.subdivisions)
-        self.add_tiled_triangle(left, top, back, False, self.subdivisions)
-        self.add_tiled_triangle(left, bottom, front, False, self.subdivisions)
-        self.add_tiled_triangle(left, bottom, back, True, self.subdivisions)
+        for i_sign in (+1, -1):
+            for j_sign in (+1, -1):
+                for k_sign in (+1, -1):
+                    p1 = c.transform((i_sign*geo.i)**e)
+                    p2 = c.transform((j_sign*geo.j)**e)
+                    p3 = c.transform((k_sign*geo.k)**e)
+                    odd = i_sign*j_sign*k_sign < 0
+                    self.add_tiled_triangle(p1, p2, p3, odd, self.subdivisions)
 
     def add_tiled_triangle(self, p1, p2, p3, odd, subdiv):
         if subdiv == 0:

@@ -38,7 +38,7 @@ void main() {
     // Step 1: translate & rotate
     vec4 pos4_modelview;
 
-    pos4_modelview=qmul(qmul(view_s, a_position.yzwx), view_t);
+    pos4_modelview=qmul(qmul(view_s, a_position), view_t);
 
     spherical_dist = acos(pos4_modelview.w);
 
@@ -51,7 +51,7 @@ void main() {
     vec4 my_pos;
 
     my_pos = proj * pos3;
-    //my_pos.z = 0.0;
+    //my_pos.z = spherical_dist;
 
     gl_Position = my_pos;
 
