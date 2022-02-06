@@ -1,5 +1,7 @@
 #version 440
 
+float PI = 3.141592653589793;
+
 in vec4 a_position;
 in vec3 a_color;
 
@@ -42,16 +44,16 @@ void main() {
 
     spherical_dist = acos(pos4_modelview.w);
 
-
     vec4 pos3;
 
     pos3 = stereographic_proj_4to3(pos4_modelview);
     
-    
     vec4 my_pos;
 
     my_pos = proj * pos3;
-    //my_pos.z = spherical_dist;
+    /*if(my_pos.w < 0) {
+        spherical_dist = 2*PI - spherical_dist;            
+    }*/
 
     gl_Position = my_pos;
 
