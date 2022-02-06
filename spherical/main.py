@@ -100,7 +100,8 @@ class Game:
 
         self.prog["proj"] = tuple(projection_matrix().T.flatten())
 
-        self.scene = Scene(self.ctx, prog)
+        self.scene = Scene(self.ctx, self.prog)
+        self.scene.load()
 
     def handle_event(self, ev):
         if ev.type == pygame.QUIT:
