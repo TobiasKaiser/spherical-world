@@ -3,14 +3,19 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to spherical-world's documentation!
-===========================================
+spherical-world
+===============
+
+**Spherical-world** is a demo on how to render spherically curved 3D space (3-sphere) with OpenGL.
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-
+   math
+   rendering
+   demo
+   further_reading
 
 Indices and tables
 ==================
