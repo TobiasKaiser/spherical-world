@@ -1,10 +1,8 @@
-Mathematics of the 3-sphere
+Spherically curved 3D space
 ===========================
 
-3-sphere
---------
 
-The 3-sphere can be defined as the set of unit quaternions:
+ 3-sphere can be defined as the set of unit quaternions:
 
 .. math::
 

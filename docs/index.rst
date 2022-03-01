@@ -12,7 +12,7 @@ spherical-world
    :maxdepth: 2
    :caption: Contents:
 
-   math
+   math/index
    rendering
    demo
    further_reading
