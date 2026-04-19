@@ -139,22 +139,108 @@ function main() {
   // Overlay toggle
   const overlay = document.getElementById('overlay');
   const toggleHint = document.getElementById('toggle-hint');
+  const isTouch = 'ontouchstart' in window || matchMedia('(pointer: coarse)').matches;
+
+  // Adapt overlay for touch vs keyboard
+  if (isTouch) {
+    document.getElementById('controls-desktop').style.display = 'none';
+    document.getElementById('controls-touch').style.display = '';
+    toggleHint.innerHTML = 'tap to hide';
+    document.getElementById('touch-controls').style.display = 'flex';
+  }
+
+  // Touch buttons (mobile)
+  function bindTouchButton(id, field, direction) {
+    const btn = document.getElementById(id);
+    btn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      camera.input[field] = direction;
+    }, { passive: false });
+    btn.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      camera.input[field] = 0;
+    }, { passive: false });
+    btn.addEventListener('touchcancel', (e) => {
+      e.preventDefault();
+      camera.input[field] = 0;
+    }, { passive: false });
+  }
+
+  bindTouchButton('btn-fwd', 'ahead', +1);
+  bindTouchButton('btn-back', 'ahead', -1);
+  bindTouchButton('btn-roll-left', 'roll', +1);
+  bindTouchButton('btn-roll-right', 'roll', -1);
+
+  function toggleOverlay() {
+    overlay.classList.toggle('hidden');
+    const hidden = overlay.classList.contains('hidden');
+    if (isTouch) {
+      toggleHint.textContent = hidden ? 'tap to show' : 'tap to hide';
+    } else {
+      toggleHint.textContent = hidden ? 'press H to show' : 'press H to hide';
+    }
+  }
+
+  toggleHint.addEventListener('click', toggleOverlay);
 
   // Keyboard handling
   document.addEventListener('keydown', (e) => {
-    if (e.code === 'KeyH') {
-      overlay.classList.toggle('hidden');
-      toggleHint.textContent = overlay.classList.contains('hidden')
-        ? 'press H to show'
-        : 'press H to hide';
-      return;
-    }
+    if (e.code === 'KeyH') { toggleOverlay(); return; }
     camera.handleKey(e.code, true);
     if (['ArrowUp', 'ArrowDown'].includes(e.code)) e.preventDefault();
   });
   document.addEventListener('keyup', (e) => {
     camera.handleKey(e.code, false);
   });
+
+  // Touch handling
+  let lastTouches = null;
+
+
+  canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    lastTouches = Array.from(e.touches);
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    const cur = Array.from(e.touches);
+    if (!lastTouches) { lastTouches = cur; return; }
+
+    const sensitivity = 60.0 / canvas.clientWidth;
+
+    if (cur.length === 1 && lastTouches.length >= 1) {
+      // Single finger: yaw + pitch
+      const dx = cur[0].clientX - lastTouches[0].clientX;
+      const dy = cur[0].clientY - lastTouches[0].clientY;
+      camera.input.yaw = -dx * sensitivity;
+      camera.input.pitch = -dy * sensitivity;
+    }
+
+    lastTouches = cur;
+  }, { passive: false });
+
+  function resetTouchInput() {
+    camera.input.yaw = 0;
+    camera.input.pitch = 0;
+    camera.input.roll = 0;
+    camera.input.ahead = 0;
+    lastTouches = null;
+  }
+
+  canvas.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    if (e.touches.length === 0) {
+      resetTouchInput();
+    } else {
+      lastTouches = Array.from(e.touches);
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchcancel', (e) => {
+    e.preventDefault();
+    resetTouchInput();
+  }, { passive: false });
 
   // Handle canvas resize
   function resize() {

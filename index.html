@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Spherical World</title>
   <style>
     * { margin: 0; padding: 0; }
-    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
-    canvas { display: block; width: 100%; height: 100%; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; position: relative; }
+    canvas { display: block; width: 100%; height: 100%; touch-action: none; }
     #overlay {
       position: absolute;
       top: 12px;
@@ -28,7 +28,42 @@
     #overlay .keys span { color: #ff0; }
     #overlay .quat { color: #0f0; }
     #overlay .label { color: #888; font-size: 11px; }
-    #overlay .hint { color: #666; font-size: 11px; margin-top: 6px; }
+    #overlay .hint { color: #666; font-size: 11px; margin-top: 6px; pointer-events: auto; cursor: pointer; }
+    #touch-controls {
+      display: none;
+      position: absolute;
+      bottom: 24px;
+      right: 16px;
+      flex-direction: row;
+      gap: 16px;
+      z-index: 10;
+    }
+    .btn-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #touch-controls button {
+      width: 56px;
+      height: 56px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      font-size: 22px;
+      line-height: 1;
+      pointer-events: auto;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #touch-controls button:active {
+      background: rgba(255,255,255,0.4);
+    }
+    @media (max-width: 480px) {
+      #overlay { font-size: 11px; padding: 8px 10px; max-width: 280px; }
+      #overlay h3 { font-size: 12px; }
+      #overlay .desc { font-size: 10px; }
+    }
   </style>
 </head>
 <body>
@@ -41,9 +76,12 @@
         isometry, applied as s&sdot;p&sdot;t for each point p.
       </p>
       <h3>Controls</h3>
-      <div class="keys">
+      <div class="keys" id="controls-desktop">
         <span>W/S</span> pitch &nbsp; <span>A/D</span> yaw<br>
         <span>Q/E</span> roll &nbsp; <span>&uarr;/&darr;</span> move
+      </div>
+      <div class="keys" id="controls-touch" style="display:none">
+        <span>drag</span> look
       </div>
       <h3>View transform</h3>
       <div>s: <span class="quat" id="hud-s">1 + 0i + 0j + 0k</span></div>
@@ -51,6 +89,16 @@
       <div class="label">s = left quaternion, t = right quaternion</div>
     </div>
     <div class="hint" id="toggle-hint">press <span style="color:#ff0">H</span> to hide</div>
+  </div>
+  <div id="touch-controls" style="display:none">
+    <div class="btn-col" id="roll-buttons">
+      <button id="btn-roll-left" aria-label="Roll left">&#8634;</button>
+      <button id="btn-roll-right" aria-label="Roll right">&#8635;</button>
+    </div>
+    <div class="btn-col" id="move-buttons">
+      <button id="btn-fwd" aria-label="Move forward">&#9650;</button>
+      <button id="btn-back" aria-label="Move backward">&#9660;</button>
+    </div>
   </div>
   <script type="module" src="/src/main.js"></script>
 </body>
