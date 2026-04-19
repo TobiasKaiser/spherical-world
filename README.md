@@ -1,6 +1,10 @@
 # A Spherical World
 
-A demo on how to render spherically curved 3D space (the 3-sphere) with WebGL.
+A demo on how to render spherically curved 3D space (the 3-sphere) with WebGL. Originally written in Python with PyGame and ModernGL (see commit `6c750b4`), later rewritten in JavaScript with vanilla WebGL2 and Vite.
+
+## What is the 3-sphere?
+
+A regular sphere (2-sphere) is a 2D surface curving through 3D space. The 3-sphere is the next step up: a 3D space curving through 4D. Every point is described by a unit quaternion (four numbers satisfying a² + b² + c² + d² = 1). There are no edges or boundaries — if you walk in any direction, you eventually return to where you started, much like walking along a great circle on a globe. This demo lets you explore the inside of such a space.
 
 ## Demo
 
@@ -31,11 +35,21 @@ npm run dev
 
 Then open the displayed URL in a browser.
 
-## Rendering & Shaders
+## What you're seeing
 
-The vertex shader applies an SO(4) camera transformation (a pair of quaternions `s` and `t`, applied as `s * point * t`) and then projects from the 4D unit sphere to 3D via stereographic projection.
+- **Six colored great circles** — the coordinate axes of the 3-sphere. Each circle lies in a different quaternion plane (e.g. the red circle spans 1 and i, the yellow one spans i and j). They serve as a fixed reference frame.
+- **Large gray checkerboard sphere** — a geodesic mesh at radius pi from the camera's starting point, built by recursively subdividing an octahedron and projecting onto the 3-sphere. The checkerboard pattern makes the curvature visible.
+- **Small colored octahedron** — a simpler mesh (cyan and red faces) placed elsewhere on the 3-sphere, giving you a landmark to navigate toward.
 
-The fragment shader uses distance-based shading: objects closer to the camera on the 3-sphere are brighter, fading toward the antipodal point. Depth ordering is corrected by setting `gl_FragDepth` to the spherical distance, ensuring correct z-ordering despite the non-Euclidean geometry.
+Objects dim as they get farther away on the 3-sphere and are brightest when nearby.
+
+## Rendering pipeline
+
+Each vertex is a unit quaternion (a point on S3). The rendering pipeline has three stages:
+
+1. **Camera transform** — the vertex shader applies an SO(4) isometry using a pair of quaternions `s` and `t`: the transformed point is `s * p * t`. This pair encodes both the camera's position and orientation on the 3-sphere.
+2. **Stereographic projection** — the shader maps the 4D point to 3D by dividing `(x, y, z)` by `(w + 1)`, analogous to how you project a globe onto a flat map.
+3. **Shading and depth** — the fragment shader dims objects based on their spherical distance from the camera (brightest nearby, darkest at the antipodal point) and writes `gl_FragDepth` as normalized spherical distance for correct z-ordering.
 
 ## Further reading
 
