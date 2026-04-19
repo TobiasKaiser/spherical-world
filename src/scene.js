@@ -1,6 +1,7 @@
 // Scene setup and rendering for the 3-sphere demo.
 
 import { AxisSet, Octahedron, Color } from './shapes.js';
+import { SphericalTransform } from './geo.js';
 
 const PI = Math.PI;
 
@@ -37,7 +38,9 @@ export function createScene(gl, program) {
   const sphere = new Octahedron(undefined, PI, 6);
   const sphereObj = createVAO(gl, program, sphere.posArray(), sphere.colArray());
 
-  const sphere2 = new Octahedron(undefined, PI / 4, 0, Color.Red, Color.Cyan);
+  const center2 = new SphericalTransform();
+  center2.translate(PI);
+  const sphere2 = new Octahedron(center2, PI / 4, 0, Color.Red, Color.Cyan);
   const sphere2Obj = createVAO(gl, program, sphere2.posArray(), sphere2.colArray());
 
   return { axesObj, sphereObj, sphere2Obj };
