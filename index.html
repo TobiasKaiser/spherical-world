@@ -8,10 +8,50 @@
     * { margin: 0; padding: 0; }
     html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
     canvas { display: block; width: 100%; height: 100%; }
+    #overlay {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      color: #ccc;
+      font: 13px/1.5 monospace;
+      background: rgba(0,0,0,0.6);
+      padding: 10px 14px;
+      border-radius: 6px;
+      pointer-events: none;
+      user-select: none;
+      max-width: 420px;
+    }
+    #overlay.hidden .body { display: none; }
+    #overlay h3 { color: #fff; margin: 0 0 4px; font-size: 14px; }
+    #overlay .desc { margin-bottom: 8px; color: #aaa; font-size: 12px; line-height: 1.4; }
+    #overlay .keys { margin-bottom: 8px; }
+    #overlay .keys span { color: #ff0; }
+    #overlay .quat { color: #0f0; }
+    #overlay .label { color: #888; font-size: 11px; }
+    #overlay .hint { color: #666; font-size: 11px; margin-top: 6px; }
   </style>
 </head>
 <body>
   <canvas id="canvas"></canvas>
+  <div id="overlay">
+    <div class="body">
+      <p class="desc">
+        Visualization of the 3-sphere (S&#179;) rendered via
+        stereographic projection. The camera view is an SO(4)
+        isometry, applied as s&sdot;p&sdot;t for each point p.
+      </p>
+      <h3>Controls</h3>
+      <div class="keys">
+        <span>W/S</span> pitch &nbsp; <span>A/D</span> yaw<br>
+        <span>Q/E</span> roll &nbsp; <span>&uarr;/&darr;</span> move
+      </div>
+      <h3>View transform</h3>
+      <div>s: <span class="quat" id="hud-s">1 + 0i + 0j + 0k</span></div>
+      <div>t: <span class="quat" id="hud-t">1 + 0i + 0j + 0k</span></div>
+      <div class="label">s = left quaternion, t = right quaternion</div>
+    </div>
+    <div class="hint" id="toggle-hint">press <span style="color:#ff0">H</span> to hide</div>
+  </div>
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>

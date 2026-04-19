@@ -127,8 +127,28 @@ function main() {
   const camera = new Camera(TICK_MS);
   let lastTick = performance.now();
 
+  // HUD elements
+  const hudS = document.getElementById('hud-s');
+  const hudT = document.getElementById('hud-t');
+
+  function fmtQuat(q) {
+    const f = (v) => (v >= 0 ? '+' : '') + v.toFixed(3);
+    return `${f(q[0])}  ${f(q[1])}i  ${f(q[2])}j  ${f(q[3])}k`;
+  }
+
+  // Overlay toggle
+  const overlay = document.getElementById('overlay');
+  const toggleHint = document.getElementById('toggle-hint');
+
   // Keyboard handling
   document.addEventListener('keydown', (e) => {
+    if (e.code === 'KeyH') {
+      overlay.classList.toggle('hidden');
+      toggleHint.textContent = overlay.classList.contains('hidden')
+        ? 'press H to show'
+        : 'press H to hide';
+      return;
+    }
     camera.handleKey(e.code, true);
     if (['ArrowUp', 'ArrowDown'].includes(e.code)) e.preventDefault();
   });
@@ -161,6 +181,9 @@ function main() {
     gl.uniform4f(viewTLoc, t[1], t[2], t[3], t[0]);
 
     renderScene(gl, scene);
+
+    hudS.textContent = fmtQuat(s);
+    hudT.textContent = fmtQuat(t);
 
     requestAnimationFrame(frame);
   }
